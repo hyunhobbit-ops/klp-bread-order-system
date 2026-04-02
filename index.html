@@ -137,6 +137,25 @@
   .modal-search{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Noto Sans KR',sans-serif;font-size:13px;margin-bottom:12px;outline:none;background:var(--input-bg);}
   .modal-search:focus{border-color:var(--accent2);}
 
+  /* Set buttons */
+  .set-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+
+  /* Order detail modal */
+  .od-info{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-bottom:16px;padding:14px;background:var(--input-bg);border-radius:8px;border:1px solid var(--border);}
+  .od-label{font-size:11px;color:var(--text-light);font-weight:600;}
+  .od-value{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .od-items-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+  .od-items-table th{background:var(--accent);color:#fff;padding:8px 10px;text-align:center;font-weight:600;font-size:11px;}
+  .od-items-table th:first-child{border-radius:6px 0 0 0;}.od-items-table th:last-child{border-radius:0 6px 0 0;}
+  .od-items-table td{padding:7px 10px;text-align:center;border-bottom:1px solid var(--border);}
+  .od-items-table tr:last-child td{border-bottom:none;}
+  .od-total{text-align:right;font-size:16px;font-weight:800;color:var(--accent);padding:8px 0;}
+  .set-btn{display:inline-flex;flex-direction:column;align-items:center;padding:10px 18px;background:var(--accent);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:2px solid var(--accent);border-radius:10px;cursor:pointer;transition:all .2s;flex:1;min-width:160px;text-align:center;}
+  .set-btn:hover{background:#2a2a4e;border-color:#2a2a4e;transform:translateY(-1px);}
+  .set-btn.active{background:var(--accent2);color:var(--accent);border-color:var(--accent2);}
+  .set-btn .set-name{font-size:14px;font-weight:800;}
+  .set-btn .set-detail{font-size:10px;font-weight:400;opacity:.7;margin-top:3px;line-height:1.4;}
+
   /* Connection status */
   .conn-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;}
   .conn-dot{width:6px;height:6px;border-radius:50%;background:#555;display:inline-block;}
@@ -186,7 +205,17 @@
   </div>
 
   <div class="section">
-    <div class="section-title"><span class="num">2</span>품목 선택 <span class="hint">클릭하여 선택</span></div>
+    <div class="section-title"><span class="num">2</span>품목 선택 <span class="hint">클릭하여 선택하거나 세트 버튼으로 한번에 선택</span></div>
+    <div class="set-bar">
+      <button class="set-btn" id="setBtn1" onclick="applySet(1)">
+        <div class="set-name">📦 세트1 (₩41,300)</div>
+        <div class="set-detail">무화과치아바타 · 호두캄파뉴 · 견과빵 · 단호박빵 · 밤미니식빵</div>
+      </button>
+      <button class="set-btn" id="setBtn2" onclick="applySet(2)">
+        <div class="set-name">📦 세트2 (₩48,800)</div>
+        <div class="set-detail">베이글 · 무화과치아바타 · 호두캄파뉴 · 견과빵 · 단호박빵 · 밤미니식빵</div>
+      </button>
+    </div>
     <div class="product-grid" id="productGrid"></div>
   </div>
 
@@ -210,7 +239,7 @@
       <div class="margin-header"><span>📊</span> 마진 분석 <span class="margin-hint">* 엑셀에 포함되지 않습니다</span></div>
       <div class="margin-table-wrap">
         <table class="margin-table">
-          <thead><tr><th>품명</th><th>매입가</th><th>판매가</th><th>수량</th><th>매입 소계</th><th>판매 소계</th><th>마진</th></tr></thead>
+          <thead><tr><th>품명</th><th>매입가</th><th>판매가</th><th>수량</th><th>매입 소계</th><th>판매 소계</th><th>정산금액</th><th>마진</th></tr></thead>
           <tbody id="marginBody"></tbody>
           <tfoot id="marginFoot"></tfoot>
         </table>
@@ -267,6 +296,23 @@
     <div class="modal-title">📋 기존 고객 데이터 불러오기<button class="modal-close" onclick="closeCustomerModal()">✕</button></div>
     <input type="text" class="modal-search" id="customerSearch" placeholder="수령인명, 주소, 연락처로 검색..." oninput="renderCustomerList()">
     <ul class="customer-list" id="customerList"></ul>
+  </div>
+</div>
+
+<!-- 주문 상세 모달 -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-title">📄 발주 상세내역<button class="modal-close" onclick="closeOrderDetail()">✕</button></div>
+    <div id="orderDetailContent"></div>
+    <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <label style="margin:0;white-space:nowrap;font-weight:700;color:var(--accent);">재주문 발주일자</label>
+        <input type="date" id="reorderDate" style="width:auto;flex:1;min-width:160px;">
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="flex:1;padding:12px 20px;font-size:14px;" onclick="loadToForm()">🔄 재주문</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -440,16 +486,17 @@ async function checkConnection() {
    ══════════════════════════════════════════ */
 const PRODUCTS=[
   {id:1,name:"식빵",weight:"630g",price:5500,retail:7500},
-  {id:2,name:"치아바타",weight:"390g",price:5500,retail:7500},
-  {id:3,name:"초코감파뉴",weight:"400g",price:5500,retail:7500},
-  {id:4,name:"밤 미니식빵",weight:"350g",price:4000,retail:6500},
-  {id:5,name:"모닝빵",weight:"504g (36g×14개)",price:5500,retail:7000},
-  {id:6,name:"팥빵",weight:"500g (100g×5개)",price:6300,retail:7800},
-  {id:7,name:"단호박빵",weight:"450g (90g×5개)",price:6300,retail:7800},
-  {id:8,name:"통밀호떡",weight:"475g (95g×5개)",price:6300,retail:7800},
-  {id:9,name:"견과빵",weight:"400g (80g×5개)",price:6000,retail:7500},
-  {id:10,name:"베이글",weight:"400g (80g×5개)",price:5500,retail:7500},
-  {id:11,name:"블루베리빵",weight:"400g (80g×5개)",price:6300,retail:7800},
+  {id:2,name:"모닝빵",weight:"504g (36g×14개)",price:5500,retail:7000},
+  {id:3,name:"베이글",weight:"400g (80g×5개)",price:5500,retail:7500},
+  {id:4,name:"무화과치아바타",weight:"390g",price:5500,retail:7500},
+  {id:5,name:"호두캄파뉴",weight:"400g",price:5500,retail:7500},
+  {id:6,name:"견과빵",weight:"400g (80g×5개)",price:6000,retail:8000},
+  {id:7,name:"팥빵",weight:"500g (135g×5개)",price:6300,retail:7800},
+  {id:8,name:"미니팥빵",weight:"325g (65g×8개)",price:6300,retail:7800},
+  {id:9,name:"단호박빵",weight:"450g (135g×5개)",price:6300,retail:7800},
+  {id:10,name:"블루베리빵",weight:"400g (80g×5개)",price:6300,retail:7800},
+  {id:11,name:"통밀호떡",weight:"475g (95g×5개)",price:6300,retail:7800},
+  {id:12,name:"밤 미니식빵",weight:"350g",price:4000,retail:6500},
 ];
 const SHIPPING=4000;
 let selected={};
@@ -471,7 +518,7 @@ function resetForm(){
   document.getElementById('vendor').selectedIndex=0;
   sv('receiverName','');sv('zipCode','');sv('address','');
   sv('phone1','');sv('phone2','');sv('deliveryNote','');
-  render();
+  render();updateSetButtons();
 }
 
 /* ─── Init ─── */
@@ -491,8 +538,36 @@ function renderProducts(){
     </div>`).join('');
 }
 
-function toggle(id){selected[id]?delete selected[id]:selected[id]={qty:1};render();}
+function toggle(id){selected[id]?delete selected[id]:selected[id]={qty:1};render();updateSetButtons();}
 function setQty(id,v){selected[id].qty=Math.max(1,parseInt(v)||1);render();}
+
+/* ─── Set Presets ─── */
+const SETS={
+  1:[4,5,6,9,12],   // 무화과치아바타, 호두캄파뉴, 견과빵, 단호박빵, 밤미니식빵
+  2:[3,4,5,6,9,12],  // 베이글, 무화과치아바타, 호두캄파뉴, 견과빵, 단호박빵, 밤미니식빵
+};
+
+function applySet(setNum){
+  const ids=SETS[setNum];
+  // 이미 해당 세트가 정확히 선택되어 있으면 해제
+  const keys=Object.keys(selected).map(Number);
+  const isExact=keys.length===ids.length && ids.every(id=>selected[id]);
+  if(isExact){
+    selected={};
+  }else{
+    selected={};
+    ids.forEach(id=>{selected[id]={qty:1};});
+  }
+  render();updateSetButtons();
+}
+
+function updateSetButtons(){
+  [1,2].forEach(n=>{
+    const ids=SETS[n];
+    const allOn=ids.every(id=>selected[id]);
+    document.getElementById('setBtn'+n).classList.toggle('active',allOn);
+  });
+}
 
 function renderOrder(){
   const keys=Object.keys(selected),empty=keys.length===0;
@@ -511,14 +586,20 @@ function renderOrder(){
   document.getElementById('grandTotal').textContent=`₩${(sub+SHIPPING).toLocaleString()}`;
 
   document.getElementById('marginBox').style.display='block';
-  let tC=0,tR=0;
+  const FEE_RATE=0.0869; // 판매수수료율 8.69% (VAT포함)
+  let tC=0,tR=0,tS=0;
   document.getElementById('marginBody').innerHTML=keys.map(id=>{
-    const p=PRODUCTS.find(x=>x.id===+id),q=selected[id].qty,cs=p.price*q,rs=p.retail*q,m=rs-cs;
-    tC+=cs;tR+=rs;const pct=((m/rs)*100).toFixed(1);
-    return`<tr><td style="font-weight:600;text-align:left;">${p.name}</td><td>₩${p.price.toLocaleString()}</td><td>₩${p.retail.toLocaleString()}</td><td>${q}</td><td>₩${cs.toLocaleString()}</td><td>₩${rs.toLocaleString()}</td><td class="${m>=0?'margin-positive':'margin-negative'}">₩${m.toLocaleString()} (${pct}%)</td></tr>`;
+    const p=PRODUCTS.find(x=>x.id===+id),q=selected[id].qty;
+    const cs=p.price*q, rs=p.retail*q;
+    const fee=Math.round(rs*FEE_RATE), settle=rs-fee;
+    const m=settle-cs;
+    tC+=cs;tR+=rs;tS+=settle;
+    const pct=settle>0?((m/settle)*100).toFixed(1):'0.0';
+    return`<tr><td style="font-weight:600;text-align:left;">${p.name}</td><td>₩${p.price.toLocaleString()}</td><td>₩${p.retail.toLocaleString()}</td><td>${q}</td><td>₩${cs.toLocaleString()}</td><td>₩${rs.toLocaleString()}</td><td style="color:#2563eb;">₩${settle.toLocaleString()}</td><td class="${m>=0?'margin-positive':'margin-negative'}">₩${m.toLocaleString()} (${pct}%)</td></tr>`;
   }).join('');
-  const tm=tR-tC,tp=tR>0?((tm/tR)*100).toFixed(1):'0.0';
-  document.getElementById('marginFoot').innerHTML=`<tr><td colspan="4" style="text-align:right;">합계</td><td>₩${tC.toLocaleString()}</td><td>₩${tR.toLocaleString()}</td><td class="${tm>=0?'margin-positive':'margin-negative'}" style="font-size:14px;">₩${tm.toLocaleString()} (${tp}%)</td></tr>`;
+  const totalFee=Math.round(tR*FEE_RATE), totalSettle=tR-totalFee;
+  const tm=totalSettle-tC,tp=totalSettle>0?((tm/totalSettle)*100).toFixed(1):'0.0';
+  document.getElementById('marginFoot').innerHTML=`<tr><td colspan="4" style="text-align:right;">합계</td><td>₩${tC.toLocaleString()}</td><td>₩${tR.toLocaleString()}<br><span style="font-size:9px;color:#888;">수수료 -₩${totalFee.toLocaleString()} (8.69%)</span></td><td style="color:#2563eb;font-size:14px;">₩${totalSettle.toLocaleString()}</td><td class="${tm>=0?'margin-positive':'margin-negative'}" style="font-size:14px;">₩${tm.toLocaleString()} (${tp}%)</td></tr>`;
 }
 
 function renderPreview(){
@@ -602,15 +683,16 @@ async function renderHistory(){
   }
 
   let html='<div class="history-table-wrap"><table class="history-table"><thead><tr><th>발주일자</th><th>발주처</th><th>수령인</th><th>상품</th><th>수량</th><th>총액</th><th>저장시간</th><th></th></tr></thead><tbody>';
-  orders.forEach(o=>{
+  orders.forEach((o,idx)=>{
     const itemStr=o.items.map(i=>`${i.name}(${i.qty})`).join(', ');
     const totalQty=o.items.reduce((s,i)=>s+i.qty,0);
     const d=new Date(o.createdAt);
     const timeStr=`${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-    html+=`<tr><td>${o.orderDate}</td><td>${o.vendor}</td><td style="font-weight:600;">${o.receiverName||'-'}</td><td style="text-align:left;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemStr}">${itemStr}</td><td>${totalQty}</td><td style="font-weight:700;">₩${(o.totalAmount||0).toLocaleString()}</td><td style="color:var(--text-light);">${timeStr}</td><td><button class="del-btn" onclick="deleteOrder('${o.id}')" title="삭제">🗑</button></td></tr>`;
+    html+=`<tr style="cursor:pointer;" onclick="openOrderDetail(${idx})"><td>${o.orderDate}</td><td>${o.vendor}</td><td style="font-weight:600;">${o.receiverName||'-'}</td><td style="text-align:left;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemStr}">${itemStr}</td><td>${totalQty}</td><td style="font-weight:700;">₩${(o.totalAmount||0).toLocaleString()}</td><td style="color:var(--text-light);">${timeStr}</td><td><button class="del-btn" onclick="event.stopPropagation();deleteOrder('${o.id}')" title="삭제">🗑</button></td></tr>`;
   });
   html+='</tbody></table></div>';
   document.getElementById('historyContent').innerHTML=html;
+  window._historyOrders=orders;
 }
 
 async function deleteOrder(id){
@@ -618,6 +700,104 @@ async function deleteOrder(id){
   await DB.remove(id);
   renderHistory();
   showToast('삭제 완료');
+}
+
+/* ─── Order Detail Modal ─── */
+let _detailOrder=null;
+
+function openOrderDetail(idx){
+  const o=(window._historyOrders||[])[idx];
+  if(!o)return;
+  _detailOrder=o;
+  document.getElementById('reorderDate').value=new Date().toISOString().slice(0,10);
+
+  let html='<div class="od-info">';
+  html+=`<div><div class="od-label">발주처</div><div class="od-value">${o.vendor}</div></div>`;
+  html+=`<div><div class="od-label">발주일자</div><div class="od-value">${o.orderDate}</div></div>`;
+  html+=`<div><div class="od-label">수령인</div><div class="od-value">${o.receiverName||'-'}</div></div>`;
+  html+=`<div><div class="od-label">연락처</div><div class="od-value">${o.phone1||'-'}</div></div>`;
+  html+=`<div style="grid-column:1/-1;"><div class="od-label">주소</div><div class="od-value">${o.zipCode?'('+o.zipCode+') ':''}${o.address||'-'}</div></div>`;
+  if(o.deliveryNote)html+=`<div style="grid-column:1/-1;"><div class="od-label">배송 요청사항</div><div class="od-value">${o.deliveryNote}</div></div>`;
+  html+='</div>';
+
+  html+='<table class="od-items-table"><thead><tr><th>품명</th><th>수량</th><th>단가</th><th>소계</th></tr></thead><tbody>';
+  let itemTotal=0;
+  o.items.forEach(i=>{
+    const sub=i.price*i.qty;itemTotal+=sub;
+    html+=`<tr><td style="text-align:left;font-weight:600;">${i.name}</td><td>${i.qty}</td><td>₩${i.price.toLocaleString()}</td><td style="font-weight:700;">₩${sub.toLocaleString()}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  html+=`<div class="od-total">상품 ₩${itemTotal.toLocaleString()} + 배송비 ₩${(o.shipping||SHIPPING).toLocaleString()} = 총 ₩${(o.totalAmount||0).toLocaleString()}</div>`;
+
+  document.getElementById('orderDetailContent').innerHTML=html;
+  document.getElementById('orderDetailModal').classList.add('show');
+}
+
+function closeOrderDetail(){document.getElementById('orderDetailModal').classList.remove('show');}
+document.getElementById('orderDetailModal').addEventListener('click',function(e){if(e.target===this)closeOrderDetail();});
+
+async function reorderSaveDownload(){
+  if(!_detailOrder)return;
+  const o=_detailOrder;
+  const newDate=document.getElementById('reorderDate').value;
+  if(!newDate){showToast('발주일자를 선택해주세요',true);return;}
+
+  const btn=event.target;btn.textContent='⏳ 저장중...';btn.style.pointerEvents='none';
+
+  const result=await DB.save({
+    vendor:o.vendor, orderDate:newDate, items:o.items.map(i=>({productId:i.productId,name:i.name,qty:i.qty,price:i.price})),
+    shipping:o.shipping||SHIPPING, totalAmount:o.totalAmount,
+    receiverName:o.receiverName, zipCode:o.zipCode, address:o.address,
+    phone1:o.phone1, phone2:o.phone2, deliveryNote:o.deliveryNote
+  });
+
+  btn.textContent='📥 저장하기 & 발주서 엑셀 다운로드';btn.style.pointerEvents='';
+
+  if(result){
+    // 엑셀 다운로드
+    const items=o.items, n=items.length;
+    const header=["발주처","발주일자","상품명","주문수량","매입가","배송비","수령인명","우편번호","주소","수령인연락처","수령인연락처","배송시 요청사항"];
+    const data=[header];
+    items.forEach((it,i)=>{
+      if(i===0)data.push([o.vendor,newDate,it.name,it.qty,it.price,o.shipping||SHIPPING,o.receiverName,o.zipCode,o.address,o.phone1,o.phone2,o.deliveryNote]);
+      else data.push(["","",it.name,it.qty,it.price,"","","","","","",""]);
+    });
+    const totalAmt=items.reduce((s,i)=>s+i.price*i.qty,0);
+    data.push(["","","합계","",totalAmt,o.shipping||SHIPPING,totalAmt+(o.shipping||SHIPPING),"","","","",""]);
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=[{wch:14},{wch:12},{wch:16},{wch:10},{wch:10},{wch:10},{wch:14},{wch:10},{wch:32},{wch:16},{wch:16},{wch:24}];
+    if(n>1){const mc=[0,1,5,6,7,8,9,10,11];ws['!merges']=mc.map(c=>({s:{r:1,c},e:{r:n,c}}));}
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Supply");
+    XLSX.writeFile(wb,`온라인발주서_${newDate.replace(/-/g,'')}.xlsx`);
+
+    closeOrderDetail();
+    showToast('✓ 재주문 저장 완료 & 엑셀 다운로드');
+    renderHistory();
+  }
+}
+
+function loadToForm(){
+  if(!_detailOrder)return;
+  const o=_detailOrder;
+  const newDate=document.getElementById('reorderDate').value||new Date().toISOString().slice(0,10);
+  closeOrderDetail();
+  selected={};
+  o.items.forEach(i=>{
+    const p=PRODUCTS.find(x=>x.name===i.name);
+    if(p) selected[p.id]={qty:i.qty};
+  });
+  document.getElementById('vendor').value=o.vendor;
+  document.getElementById('orderDate').value=newDate;
+  sv('receiverName',o.receiverName);sv('zipCode',o.zipCode);sv('address',o.address);
+  sv('phone1',o.phone1);sv('phone2',o.phone2);sv('deliveryNote',o.deliveryNote);
+
+  document.getElementById('pageForm').classList.add('active');
+  document.getElementById('pageHistory').classList.remove('active');
+  document.getElementById('tabForm').classList.add('active');
+  document.getElementById('tabHistory').classList.remove('active');
+  render();updateSetButtons();
+  window.scrollTo({top:0,behavior:'smooth'});
+  showToast(`✓ ${o.receiverName||''}님 재주문 불러오기 완료`);
 }
 
 /* ─── Customer Modal (async) ─── */
